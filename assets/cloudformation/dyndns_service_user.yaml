@@ -1,0 +1,70 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Manages AWS Service User for Route 53 Dynamic DNS.
+
+Parameters:
+  HostedDnsZoneId:
+    Type: 'String'
+    MinLength: 10
+    MaxLength: 100
+    Description: >
+      The ID of Route53 Hosted Zone.
+
+Resources:
+  #
+  # Dynamic DNS Registration User, Group, Role, and Policy
+  #
+
+  DynDnsUpdateServiceGroup:
+    Type: 'AWS::IAM::Group'
+    DeletionPolicy: 'Retain'
+    Properties:
+      GroupName: 'DynDnsUpdateServiceGroup'
+      Path: '/managed/'
+
+  DynDnsUpdateServiceUser:
+    Type: 'AWS::IAM::User'
+    DeletionPolicy: 'Retain'
+    Properties:
+      UserName: 'DynDnsUpdateServiceUser'
+      Path: '/managed/'
+      Groups:
+        - !Ref 'DynDnsUpdateServiceGroup'
+      Tags:
+        - Key: "managed_by"
+          Value: "AWS CloudFormation Stack"
+
+  DynDnsUpdateServiceAccessKey:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !Ref 'DynDnsUpdateServiceUser'
+      Status: 'Active'
+
+  DynDnsUpdateServicePolicy:
+    Type: 'AWS::IAM::Policy'
+    DeletionPolicy: 'Retain'
+    Properties:
+      PolicyName: 'DynDnsUpdateServicePolicy'
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'route53:ChangeResourceRecordSets'
+            Resource:
+              - !Sub 'arn:aws:route53:::hostedzone/${HostedDnsZoneId}'
+          - Effect: Allow
+            Action:
+              - 'route53:List*'
+              - 'route53:Get*'
+            Resource: '*'
+      Groups:
+        - !Ref 'DynDnsUpdateServiceGroup'
+
+Outputs:
+  DynDnsUpdateServiceAccessKey:
+    Value: !Ref 'DynDnsUpdateServiceAccessKey'
+    Description: 'AWSAccessKeyId of DynDnsUpdateServiceUser'
+  DynDnsUpdateServiceSecretKey:
+    Value: !GetAtt [DynDnsUpdateServiceAccessKey, SecretAccessKey]
+    Description: 'AWSSecretAccessKey of DynDnsUpdateServiceUser'
