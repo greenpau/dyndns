@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     env:
       GOBIN: /home/runner/.local/bin
-      GOPRIVATE: 'github.com/fwd53/*,github.com/forward53/private*,github.com/greenpau/dyndns'
+      GOPRIVATE: 'github.com/fwd53/*,github.com/forward53/private*,github.com/greenpau/dyndns*'
     steps:
     - name: Install Go
       uses: actions/setup-go@v1
