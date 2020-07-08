@@ -1,10 +1,8 @@
-package dyndns
+package utils
 
 import (
 	"fmt"
-	"os"
 	"strings"
-	"time"
 )
 
 const allowedChars = "0123456789abcdefghijklmnopqrstuvwxyz/_-."
