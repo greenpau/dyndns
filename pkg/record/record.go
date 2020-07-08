@@ -11,6 +11,8 @@ type RegistrationRecord struct {
 	TimeToLive uint64 `json:"ttl" yaml:"ttl"`
 	Version4   bool   `json:"v4" yaml:"v4"`
 	Version6   bool   `json:"v6" yaml:"v6"`
+	ip4        string
+	ip6        string
 }
 
 // Validate validates RegistrationRecord.
@@ -37,4 +39,36 @@ func (r *RegistrationRecord) Validate() error {
 		r.TimeToLive = 600
 	}
 	return nil
+}
+
+func validVersion(version int) error {
+	if version != 4 && version != 6 {
+		return fmt.Errorf("invalid ip version %d", version)
+	}
+	return nil
+}
+
+// SetAddress sets IP address associated with the record.
+func (r *RegistrationRecord) SetAddress(addr string, version int) error {
+	if err := validVersion(version); err != nil {
+		return fmt.Errorf("%s for %s", err, addr)
+	}
+	if version == 4 {
+		r.ip4 = addr
+		return nil
+	}
+	r.ip6 = addr
+	return nil
+
+}
+
+// GetAddress returns IP address associated with the record.
+func (r *RegistrationRecord) GetAddress(version int) (string, error) {
+	if err := validVersion(version); err != nil {
+		return "", err
+	}
+	if version == 4 {
+		return r.ip4, nil
+	}
+	return r.ip6, nil
 }

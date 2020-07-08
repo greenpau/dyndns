@@ -5,7 +5,7 @@ import (
 	"github.com/miekg/dns"
 )
 
-var publicDnsServers = []string{"8.8.8.8:53", "8.8.4.4:53"}
+var publicDNSServers = []string{"8.8.8.8:53", "8.8.4.4:53"}
 
 // ResolveName returns public IP address associated with the provided
 // DNS record
@@ -15,7 +15,7 @@ func ResolveName(name string, version int) ([]string, error) {
 		return addrs, fmt.Errorf("only ip version 4 is supported")
 	}
 
-	for _, server := range publicDnsServers {
+	for _, server := range publicDNSServers {
 		req := new(dns.Msg)
 		req.Id = dns.Id()
 		req.RecursionDesired = true

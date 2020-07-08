@@ -16,6 +16,7 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 	var fn = s.name + "-registration-mgr"
 	syncInterval := float64(s.cfg.SyncInterval)
 	record := s.cfg.Record
+	provider := s.cfg.Provider
 	s.log.Debug(
 		"starting sybsystem",
 		zap.String("subsystem", fn),
@@ -116,7 +117,8 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 							zap.Any("public_ip", addr),
 							zap.Any("dns_addresses", dnsAddrs),
 						)
-						continue
+						// TODO: remove comment
+						//continue
 					}
 				}
 
@@ -130,6 +132,38 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 					zap.Any("dns_addresses", dnsAddrs),
 				)
 
+				if err := record.SetAddress(addr, 4); err != nil {
+					s.log.Error(
+						"failed updating internal dns record",
+						zap.String("subsystem", fn),
+						zap.String("app", s.name),
+						zap.Any("record", record),
+						zap.String("error", err.Error()),
+					)
+					continue
+				}
+
+				if err := provider.Register(record); err != nil {
+					s.log.Error(
+						"dns record update failed",
+						zap.String("subsystem", fn),
+						zap.String("app", s.name),
+						zap.Any("record", record),
+						zap.Any("public_ip", addr),
+						zap.Any("dns_addresses", dnsAddrs),
+						zap.String("error", err.Error()),
+					)
+					continue
+				}
+
+				s.log.Info(
+					"updated dns record",
+					zap.String("subsystem", fn),
+					zap.String("app", s.name),
+					zap.Any("record", record),
+					zap.Any("public_ip", addr),
+					zap.Any("dns_addresses", dnsAddrs),
+				)
 			}
 
 		}

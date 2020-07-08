@@ -50,6 +50,16 @@ func (p *RegistrationProvider) GetProvider() string {
 
 // Register registers a record with RegistrationProvider.
 func (p *RegistrationProvider) Register(r *record.RegistrationRecord) error {
-	p.log.Debug("received registration request", zap.Any("request", r))
+	ip4, err := r.GetAddress(4)
+	if err != nil {
+		return err
+	}
+
+	p.log.Debug(
+		"received registration request",
+		zap.Any("record", r),
+		zap.Any("address", ip4),
+	)
+
 	return nil
 }

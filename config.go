@@ -117,6 +117,10 @@ func (s *Server) ValidateConfig() error {
 		return fmt.Errorf("%s: invalid dns provider definition, error: %s", s.name, err.Error())
 	}
 
+	if err := s.cfg.Provider.Configure(s.log); err != nil {
+		return fmt.Errorf("%s: dns provider configuration error: %s", s.name, err.Error())
+	}
+
 	if s.cfg.Record == nil {
 		return fmt.Errorf("%s: dns record failed to initialize due to invalid configuration", s.name)
 	}
