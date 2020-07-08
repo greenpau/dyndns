@@ -28,7 +28,7 @@ all:
 		-gcflags="all=-trimpath=$(GOPATH)/src" \
 		-asmflags="all=-trimpath $(GOPATH)/src" \
 		cmd/${APP}/*.go
-	@./bin/$(BINARY) --validate --log-level debug
+	@./bin/$(BINARY) --validate --config assets/conf/config.json --log-level debug
 	@./bin/$(BINARY) --version
 
 linter:

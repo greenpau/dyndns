@@ -102,12 +102,15 @@ func (s *Server) LoadConfig(configFile string) error {
 
 // ValidateConfig validates configuration.
 func (s *Server) ValidateConfig() error {
+	if s.cfg.File == "" {
+		return fmt.Errorf("%s: configuration file not provided", s.name)
+	}
 	if s.cfg.SyncInterval == 0 {
 		return fmt.Errorf("%s: sync interval is null", s.name)
 	}
 
 	if s.cfg.Provider == nil {
-		return fmt.Errorf("dns provider failed to initialize due to invalid configuration")
+		return fmt.Errorf("%s: dns provider failed to initialize due to invalid configuration", s.name)
 	}
 
 	if err := s.cfg.Provider.Validate(); err != nil {
@@ -115,7 +118,7 @@ func (s *Server) ValidateConfig() error {
 	}
 
 	if s.cfg.Record == nil {
-		return fmt.Errorf("dns record failed to initialize due to invalid configuration")
+		return fmt.Errorf("%s: dns record failed to initialize due to invalid configuration", s.name)
 	}
 
 	if err := s.cfg.Record.Validate(); err != nil {
