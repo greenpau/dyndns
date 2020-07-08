@@ -1,11 +1,11 @@
-package dyndns
+package main
 
 import (
 	"flag"
 	"fmt"
+	"github.com/greenpau/dyndns"
 	"os"
 
-	"github.com/greenpau/dyndns/pkg/dyndns"
 	"github.com/greenpau/versioned"
 	"go.uber.org/zap"
 )

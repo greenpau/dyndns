@@ -27,14 +27,14 @@ all:
 		-X main.buildDate=$(BUILD_DATE)" \
 		-gcflags="all=-trimpath=$(GOPATH)/src" \
 		-asmflags="all=-trimpath $(GOPATH)/src" \
-		main.go
+		cmd/${APP}/*.go
 	@./bin/$(BINARY) --validate --log-level debug
 	@./bin/$(BINARY) --version
 
 linter:
 	@echo "Running lint checks"
 	@golint -set_exit_status *.go
-	@for f in `find ./pkg -type f -name '*.go'`; do echo $$f; go fmt $$f; golint -set_exit_status $$f; done
+	@for f in `find ./ -type f -name '*.go'`; do echo $$f; go fmt $$f; golint -set_exit_status $$f; done
 	@for f in `find ./assets -name *.y*ml`; do yamllint $$f; done
 	@#cat assets/conf/config.yaml | yq . > assets/conf/config.json
 	@echo "PASS: lint checks"
@@ -45,16 +45,16 @@ covdir:
 
 test: covdir linter
 	@echo "Running go test"
-	@go test $(VERBOSE) -coverprofile=.coverage/coverage.out ./pkg/$(APP)/*.go
+	@go test $(VERBOSE) -coverprofile=.coverage/coverage.out ./*.go
 	@echo "PASS: go test"
 
 ctest: covdir linter
-	@time richgo test $(VERBOSE) $(TEST) -coverprofile=.coverage/coverage.out ./pkg/$(APP)/*.go
+	@time richgo test $(VERBOSE) $(TEST) -coverprofile=.coverage/coverage.out ./*.go
 
 coverage: covdir
 	@echo "Running coverage"
 	@go tool cover -html=.coverage/coverage.out -o .coverage/coverage.html
-	@go test -covermode=count -coverprofile=.coverage/coverage.out ./pkg/$(APP)/*.go
+	@go test -covermode=count -coverprofile=.coverage/coverage.out ./*.go
 	@go tool cover -func=.coverage/coverage.out | grep -v "100.0"
 	@echo "PASS: coverage"
 
@@ -69,7 +69,7 @@ clean:
 qtest:
 	@echo "Perform quick tests ..."
 	@rm -rf .coverage/*
-	@#go test $(VERBOSE) -coverprofile=.coverage/coverage.out -run TestServerConfig ./pkg/$(APP)/*.go
+	@#go test $(VERBOSE) -coverprofile=.coverage/coverage.out -run TestServerConfig ./*.go
 	@#./bin/$(BINARY) -config ./assets/conf/config.json -log-level debug
 
 dep:
@@ -85,9 +85,11 @@ release:
 	@if [ $(GIT_BRANCH) != "master" ]; then echo "cannot release to non-master branch $(GIT_BRANCH)" && false; fi
 	@git diff-index --quiet HEAD -- || ( echo "git directory is dirty, commit changes first" && false )
 	@versioned -patch
-	@versioned -sync main.go
+	@git add VERSION
+	@git commit -m 'updated VERSION file'
+	@versioned -sync cmd/${APP}/main.go
 	@echo "Patched version"
-	@git add VERSION main.go
+	@git add cmd/${APP}/main.go
 	@git commit -m "released v`cat VERSION | head -1`"
 	@git tag -a v`cat VERSION | head -1` -m "v`cat VERSION | head -1`"
 	@git push

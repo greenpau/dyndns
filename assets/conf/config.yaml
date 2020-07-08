@@ -1,0 +1,11 @@
+---
+provider:
+  type: 'route53'
+  zone_id: 'Z627GH1M87Y192'
+  credentials: '~/.aws/credentials'
+  profile_name: 'dyndns'
+record:
+  name: 'app.hosted.fwd53.com'
+  type: 'A'
+  ttl: 60
+sync_interval: 15
