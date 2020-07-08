@@ -55,6 +55,7 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 			}
 			timer = time.Now()
 			if record.Version4 {
+				// Get the public IP address of the host running this service
 				s.log.Debug(
 					"checking public ip address",
 					zap.String("subsystem", fn),
@@ -78,13 +79,15 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 					zap.Any("address", addr),
 				)
 
+				// Resolve the IP address associated with DNS A/AAAA record
+
 				s.log.Debug(
 					"resolving dns record",
 					zap.String("subsystem", fn),
 					zap.String("app", s.name),
 					zap.Any("record", record),
 				)
-				dnsAddr, err := utils.ResolveName(record.Name, 4)
+				dnsAddrs, err := utils.ResolveName(record.Name, 4)
 				if err != nil {
 					s.log.Error(
 						"resolving dns record failed",
@@ -100,8 +103,33 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 					zap.String("subsystem", fn),
 					zap.String("app", s.name),
 					zap.Any("record", record),
-					zap.Any("address", dnsAddr),
+					zap.Any("addresses", dnsAddrs),
 				)
+
+				if len(dnsAddrs) == 1 {
+					if dnsAddrs[0] == addr {
+						s.log.Debug(
+							"dns record is up to date",
+							zap.String("subsystem", fn),
+							zap.String("app", s.name),
+							zap.Any("record", record),
+							zap.Any("public_ip", addr),
+							zap.Any("dns_addresses", dnsAddrs),
+						)
+						continue
+					}
+				}
+
+				// Update DNS Zone
+				s.log.Info(
+					"dns record is not up to date",
+					zap.String("subsystem", fn),
+					zap.String("app", s.name),
+					zap.Any("record", record),
+					zap.Any("public_ip", addr),
+					zap.Any("dns_addresses", dnsAddrs),
+				)
+
 			}
 
 		}
