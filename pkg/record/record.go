@@ -9,8 +9,8 @@ type RegistrationRecord struct {
 	Name       string `json:"name" yaml:"name"`
 	Type       string `json:"type" yaml:"type"`
 	TimeToLive uint64 `json:"ttl" yaml:"ttl"`
-	Version4   bool
-	Version6   bool
+	Version4   bool   `json:"v4" yaml:"v4"`
+	Version6   bool   `json:"v6" yaml:"v6"`
 }
 
 // Validate validates RegistrationRecord.

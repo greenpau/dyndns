@@ -54,12 +54,13 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 				initialized = true
 			}
 			timer = time.Now()
-			s.log.Debug(
-				"checking public ip address",
-				zap.String("subsystem", fn),
-				zap.String("app", s.name),
-			)
 			if record.Version4 {
+				s.log.Debug(
+					"checking public ip address",
+					zap.String("subsystem", fn),
+					zap.String("app", s.name),
+				)
+
 				addr, err := utils.GetPublicAddress(4)
 				if err != nil {
 					s.log.Error(
@@ -75,6 +76,31 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 					zap.String("subsystem", fn),
 					zap.String("app", s.name),
 					zap.Any("address", addr),
+				)
+
+				s.log.Debug(
+					"resolving dns record",
+					zap.String("subsystem", fn),
+					zap.String("app", s.name),
+					zap.Any("record", record),
+				)
+				dnsAddr, err := utils.ResolveName(record.Name, 4)
+				if err != nil {
+					s.log.Error(
+						"resolving dns record failed",
+						zap.String("subsystem", fn),
+						zap.String("app", s.name),
+						zap.Any("record", record),
+						zap.String("error", err.Error()),
+					)
+					continue
+				}
+				s.log.Debug(
+					"resolved dns record",
+					zap.String("subsystem", fn),
+					zap.String("app", s.name),
+					zap.Any("record", record),
+					zap.Any("address", dnsAddr),
 				)
 			}
 
