@@ -6,7 +6,7 @@
     "profile_name": "dyndns"
   },
   "record": {
-    "name": "app.hosted.fwd53.com",
+    "name": "app.contoso.com",
     "type": "A",
     "ttl": 60
   },

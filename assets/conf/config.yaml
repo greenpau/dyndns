@@ -5,7 +5,7 @@ provider:
   credentials: '~/.aws/credentials'
   profile_name: 'dyndns'
 record:
-  name: 'app.hosted.fwd53.com'
+  name: 'app.contoso.com'
   type: 'A'
   ttl: 60
 sync_interval: 15
