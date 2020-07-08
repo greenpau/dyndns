@@ -2,12 +2,18 @@ package route53
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/go-ini/ini"
 	"github.com/greenpau/dyndns/pkg/record"
 	"github.com/greenpau/dyndns/pkg/utils"
 	"go.uber.org/zap"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // RegistrationProvider is a controller for updating DNS records hosted byo
@@ -108,6 +114,13 @@ func (p *RegistrationProvider) GetProvider() string {
 
 // Register registers a record with RegistrationProvider.
 func (p *RegistrationProvider) Register(r *record.RegistrationRecord) error {
+	if r.Name == "" {
+		return fmt.Errorf("record name is empty")
+	}
+	nameParts := strings.SplitN(r.Name, ".", 2)
+	// hostname := nameParts[0]
+	expDomain := nameParts[1]
+
 	ip4, err := r.GetAddress(4)
 	if err != nil {
 		return err
@@ -117,6 +130,51 @@ func (p *RegistrationProvider) Register(r *record.RegistrationRecord) error {
 		"received registration request",
 		zap.Any("record", r),
 		zap.Any("address", ip4),
+	)
+
+	// Acquire AWS Session
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(p.region),
+		Credentials: credentials.NewStaticCredentials(p.accessKeyID, p.secretAccessKey, ""),
+	})
+	if err != nil {
+		return fmt.Errorf("failed create aws session: %s", err)
+	}
+
+	// Connect to AWS Service
+	svc := route53.New(sess)
+	hostedZoneRequest := &route53.GetHostedZoneInput{
+		Id: aws.String(p.ZoneID),
+	}
+	hostedZoneResponse, err := svc.GetHostedZone(hostedZoneRequest)
+	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			case route53.ErrCodeNoSuchHostedZone:
+				return fmt.Errorf("zone id %s not found: %s", p.ZoneID, aerr.Error())
+			case route53.ErrCodeInvalidInput:
+				return fmt.Errorf("invalid get hosted zone request: %s", p.ZoneID, aerr.Error())
+			default:
+				return fmt.Errorf("get hosted zone request failed: %s", aerr.Error())
+			}
+		}
+		return fmt.Errorf("get hosted zone request failed: %s", err.Error())
+	}
+
+	if hostedZoneResponse.HostedZone == nil {
+		return fmt.Errorf("get hosted zone request returned nil")
+	}
+
+	domain := strings.TrimRight(*hostedZoneResponse.HostedZone.Name, ".")
+	if expDomain != domain {
+		return fmt.Errorf("hosted zone mismatch: %s (expected) vs. %s (actual)", expDomain, domain)
+	}
+
+	p.log.Debug(
+		"dns zone found",
+		zap.String("zone_id", p.ZoneID),
+		zap.String("domain", domain),
+		zap.Any("zone", hostedZoneResponse),
 	)
 
 	return nil
