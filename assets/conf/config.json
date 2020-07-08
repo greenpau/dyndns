@@ -2,7 +2,7 @@
   "provider": {
     "type": "route53",
     "zone_id": "Z627GH1M87Y192",
-    "credentials": "~/.aws/credentials",
+    "credentials": "./assets/conf/.aws/credentials",
     "profile_name": "dyndns"
   },
   "record": {

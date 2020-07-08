@@ -29,3 +29,29 @@ func ContainsValidCharset(charset, s string) error {
 	}
 	return nil
 }
+
+// MaskSecret masks secret strings
+func MaskSecret(s string, j int, k int) string {
+	r := ""
+	mask := false
+	if k == 0 {
+		k = len(s)
+	} else {
+		k = len(s) - k + 1
+	}
+
+	for i, c := range s {
+		if i >= j {
+			mask = true
+		}
+		if i > k {
+			mask = false
+		}
+		if mask {
+			r = r + "*"
+			continue
+		}
+		r = r + string(c)
+	}
+	return r
+}
