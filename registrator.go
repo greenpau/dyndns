@@ -55,6 +55,7 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 				initialized = true
 			}
 			timer = time.Now()
+			syncInterval = float64(s.cfg.SyncInterval)
 			if record.Version4 {
 				// Get the public IP address of the host running this service
 				s.log.Debug(
@@ -117,21 +118,11 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 							zap.Any("public_ip", addr),
 							zap.Any("dns_addresses", dnsAddrs),
 						)
-						// TODO: remove comment
-						//continue
+						continue
 					}
 				}
 
-				// Update DNS Zone
-				s.log.Info(
-					"dns record is not up to date",
-					zap.String("subsystem", fn),
-					zap.String("app", s.name),
-					zap.Any("record", record),
-					zap.Any("public_ip", addr),
-					zap.Any("dns_addresses", dnsAddrs),
-				)
-
+				// Update DNS record could be outdated
 				if err := record.SetAddress(addr, 4); err != nil {
 					s.log.Error(
 						"failed updating internal dns record",
@@ -156,16 +147,8 @@ func runRegistrationManager(s *Server, parentWaitGroup *sync.WaitGroup) {
 					continue
 				}
 
-				s.log.Info(
-					"updated dns record",
-					zap.String("subsystem", fn),
-					zap.String("app", s.name),
-					zap.Any("record", record),
-					zap.Any("public_ip", addr),
-					zap.Any("dns_addresses", dnsAddrs),
-				)
+				syncInterval = float64(s.cfg.SyncInterval) * float64(5)
 			}
-
 		}
 	}
 	intervals.Stop()
