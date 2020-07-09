@@ -68,8 +68,8 @@ rpm -qlp ~/rpmbuild/RPMS/${PKG_CPU_ISA}/${PKG_RPM_FILE}.rpm
 cd ${ROOT_DIR} && mkdir -p dist
 rm -rf ./dist/${PKG_RPM_FILE}.rpm
 cp ~/rpmbuild/RPMS/${PKG_CPU_ISA}/${PKG_RPM_FILE}.rpm ./dist/${PKG_RPM_FILE}.rpm
-echo "SCP:       scp ./dist/${PKG_RPM_FILE}.rpm root@remote:/tmp/"
-echo "Install:   sudo yum -y localinstall ./dist/${PKG_RPM_FILE}.rpm"
-echo "RPM File:  ./dist/${PKG_RPM_FILE}.rpm"
+echo "SCP:       scp ./assets/rpm/dist/${PKG_RPM_FILE}.rpm root@remote:/tmp/"
+echo "Install:   sudo yum -y localinstall ./assets/rpm/dist/${PKG_RPM_FILE}.rpm"
+echo "RPM File:  ./assets/rpm/dist/${PKG_RPM_FILE}.rpm"
 
 exit 0
