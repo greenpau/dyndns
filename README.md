@@ -33,3 +33,25 @@ Finally, start the `dyndns` service:
 ```bash
 bin/dyndns --config ~/dyndns_config.json --log-level debug
 ```
+
+## Deployment
+
+First, install `dyndns`:
+
+```
+sudo yum -y localinstall dyndns-1.0.1-1.el7.x86_64.rpm
+```
+
+Then, amend the following files:
+
+* `/etc/dyndns/config.json`
+* `/var/lib/dyndns/.aws/credentials`
+
+After that, enable and start the service:
+
+```bash
+sudo systemctl enable dyndns
+sudo systemctl start dyndns
+sudo systemctl status dyndns
+sudo journalctl -u dyndns -r --no-pager | head -100
+```
