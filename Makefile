@@ -1,4 +1,4 @@
-.PHONY: test ctest covdir coverage docs linter qtest clean dep release logo rpm
+.PHONY: test ctest covdir coverage docs linter qtest clean dep release logo rpm build
 APP="dyndns"
 APP_VERSION:=$(shell cat VERSION | head -1)
 GIT_COMMIT:=$(shell git describe --dirty --always)
@@ -13,7 +13,10 @@ ifdef TEST
 endif
 BINARY=${APP}
 
-all:
+all: build
+	@echo "OK"
+
+build: clean
 	@echo "Version: $(APP_VERSION), Branch: $(GIT_BRANCH), Revision: $(GIT_COMMIT)"
 	@echo "Build on $(BUILD_DATE) by $(BUILD_USER)"
 	@mkdir -p bin/
