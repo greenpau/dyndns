@@ -1,4 +1,4 @@
-.PHONY: test ctest covdir coverage docs linter qtest clean dep release logo
+.PHONY: test ctest covdir coverage docs linter qtest clean dep release logo rpm
 APP="dyndns"
 APP_VERSION:=$(shell cat VERSION | head -1)
 GIT_COMMIT:=$(shell git describe --dirty --always)
@@ -77,6 +77,7 @@ dep:
 	@go get -u golang.org/x/lint/golint
 	@go get -u golang.org/x/tools/cmd/godoc
 	@go get -u github.com/greenpau/versioned/cmd/versioned
+	@go get -u github.com/greenpau/gorpm/cmd/gorpm
 	@pip3 install yamllint --user
 	@pip3 install yq --user
 
@@ -104,3 +105,6 @@ logo:
 		-font DejaVu-Sans-Bold -size 640x320! \
 		-gravity center -pointsize 96 label:'dyndns' \
 		PNG32:assets/docs/images/logo.png
+
+rpm:
+	@./assets/rpm/build.sh

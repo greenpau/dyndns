@@ -1,0 +1,14 @@
+{
+  "provider": {
+    "type": "route53",
+    "zone_id": "DYNDNS_ZONE_ID",
+    "credentials": "~/.aws/credentials",
+    "profile_name": "dyndns"
+  },
+  "record": {
+    "name": "DYNDNS_RECORD",
+    "type": "A",
+    "ttl": 300
+  },
+  "sync_interval": 300
+}

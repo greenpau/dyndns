@@ -1,0 +1,74 @@
+{
+  "name": "dyndns",
+  "version": "!version!",
+  "arch": "!arch!",
+  "release": "!release!",
+  "distro": "!distro!",
+  "cpu": "!cpu!",
+  "summary": "dyndns",
+  "group": "System Environments/Daemons",
+  "license": "Apache 2.0",
+  "url": "https://github.com/greenpau/dyndns",
+  "description": "Dynamic DNS Registrator for Route 53.",
+  "changelog-cmd": "cat CHANGELOG",
+  "files": [
+    {
+      "base": "./usr/local/bin",
+      "from": "./usr/local/bin/!name!",
+      "to": "%{_prefix}/local/bin",
+      "perms": "0755",
+      "owner": "root",
+      "group": "root"
+    },
+    {
+      "base": "./etc/sysconfig",
+      "from": "./etc/sysconfig/!name!.conf",
+      "to": "%{_sysconfdir}/sysconfig",
+      "perms": "0644",
+      "owner": "root",
+      "group": "root"
+    },
+    {
+      "base": "./lib/systemd/system",
+      "from": "./lib/systemd/system/!name!.service",
+      "to": "%{_unitdir}/",
+      "perms": "0644",
+      "owner": "root",
+      "group": "root"
+    },
+    {
+      "base": "./usr/lib/tmpfiles.d",
+      "from": "./usr/lib/tmpfiles.d/!name!.conf",
+      "to": "%{_prefix}/lib/tmpfiles.d",
+      "perms": "0644",
+      "owner": "root",
+      "group": "root"
+    },
+    {
+      "base": "./etc/!name!",
+      "from": "./etc/!name!/config_template.json",
+      "to": "%{_sysconfdir}/!name!",
+      "perms": "0644",
+      "owner": "root",
+      "group": "root"
+    }
+  ],
+  "build-requires": [
+    "systemd"
+  ],
+  "sources": [
+    "!name!-!version!-!release!.!distro!.!cpu!.tar.gz"
+  ],
+  "pre_install_script": "scripts/pre_install.sh",
+  "post_install_script": "scripts/post_install.sh",
+  "pre_remove_script": "scripts/pre_remove.sh",
+  "post_remove_script": "scripts/post_remove.sh",
+  "verify_script": "scripts/verify.sh",
+  "cleanup_script": "scripts/cleanup.sh",
+  "envs": [
+    {
+      "name": "DYNDNS_VERSION",
+      "value": "!version!"
+    }
+  ]
+}

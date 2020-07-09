@@ -1,0 +1,16 @@
+[Unit]
+Description=Dynamic DNS Registrator for Route 53
+Wants=network.target
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/sysconfig/dyndns.conf
+ExecStart=/usr/local/bin/dyndns $OPTIONS
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+User=dyndns
+Group=dyndns
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
