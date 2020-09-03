@@ -4,6 +4,8 @@
 
 Dynamic DNS Registrator for Route 53
 
+Dynamic DNS clients are being used to update DNS name to IP address mapping of home or small-business networks. Typically, when a person restarts ISP router, the IP address associated with the router changes. Therefore, there is a need to update the mapping. I enjoy AWS Route 53 DNS service. This client is capable of updating Route 53 records.
+
 ## Getting Started
 
 First, create AWS CloudFormation stack named `DynDnsUpdateServiceUser` with
@@ -28,10 +30,16 @@ Next, create `~/dyndns_config.json` configuration file:
 }
 ```
 
+Next, download `dyndns` client:
+
+```bash
+go get -u github.com/greenpau/dyndns/cmd/dyndns
+```
+
 Finally, start the `dyndns` service:
 
 ```bash
-bin/dyndns --config ~/dyndns_config.json --log-level debug
+dyndns --config ~/dyndns_config.json --log-level debug
 ```
 
 ## Deployment
