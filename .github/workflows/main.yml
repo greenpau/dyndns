@@ -2,36 +2,38 @@
 name: build
 
 on:
+  workflow_dispatch: {}
   push:
     branches:
-    - master
+    - main
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   core:
     strategy:
       matrix:
-        go-version: [1.14.x]
+        go-version: [1.20.x]
         platform: [ubuntu-latest]
     name: Build
     runs-on: ${{ matrix.platform }}
     env:
       GOBIN: /home/runner/.local/bin
-      GOPRIVATE: 'github.com/fwd53/*,github.com/forward53/private*,github.com/greenpau/dyndns*'
     steps:
     - name: Install Go
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
       id: go
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-    - name: Setup Environment
+      uses: actions/checkout@v3
+    - name: Amend Environment Path
       run: |
         mkdir -p /home/runner/.local/bin
-        echo "::add-path::/home/runner/.local/bin"
+        echo "/home/runner/.local/bin" >> $GITHUB_PATH
+    - name: Setup Environment
+      run: |
         mkdir -p .coverage
         echo "*** Current Directory ***"
         pwd
@@ -45,20 +47,26 @@ jobs:
     - name: Install prerequisites
       run: |
         sudo apt-get --assume-yes install make
+        sudo apt-get --assume-yes install libnss3-tools
         pip3 install --upgrade pip setuptools wheel
-        make dep
+        sudo apt-get update
+    - name: Install Go modules
+      run: |
         mkdir -p ~/.aws
         cp assets/conf/.aws/credentials ~/.aws/
+        make dep
     - name: Validate prerequisites
       run: |
         echo "*** Local binaries ***"
         find /home/runner/.local/bin
     - name: Run tests
-      run: make test
+      run: |
+        make
+        make test
     - name: Generate coverage report
       run: make coverage
     - name: Upload coverage report
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: Test Coverage Report
         path: .coverage/coverage.html

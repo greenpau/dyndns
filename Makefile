@@ -77,16 +77,17 @@ qtest:
 
 dep:
 	@echo "Making dependencies check ..."
-	@go get -u golang.org/x/lint/golint
-	@go get -u golang.org/x/tools/cmd/godoc
-	@go get -u github.com/greenpau/versioned/cmd/versioned
-	@go get -u github.com/greenpau/gorpm/cmd/gorpm
+	@go install golang.org/x/lint/golint@latest
+	@go install github.com/kyoh86/richgo@latest
+	@go install github.com/greenpau/versioned/cmd/versioned@latest
+	@go install github.com/greenpau/gorpm/cmd/gorpm@latest
+	@go install golang.org/x/tools/cmd/godoc@latest
 	@pip3 install yamllint --user
 	@pip3 install yq --user
 
 release:
 	@echo "Making release"
-	@if [ $(GIT_BRANCH) != "master" ]; then echo "cannot release to non-master branch $(GIT_BRANCH)" && false; fi
+	@if [ $(GIT_BRANCH) != "main" ]; then echo "cannot release to non-main branch $(GIT_BRANCH)" && false; fi
 	@git diff-index --quiet HEAD -- || ( echo "git directory is dirty, commit changes first" && false )
 	@versioned -patch
 	@git add VERSION
