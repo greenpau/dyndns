@@ -24,9 +24,9 @@ func init() {
 	app = versioned.NewPackageManager("dyndns")
 	app.Description = "Dynamic DNS Registrator for Route 53"
 	app.Documentation = "https://github.com/greenpau/dyndns/"
-	app.SetVersion(appVersion, "1.0.2")
+	app.SetVersion(appVersion, "1.0.3")
 	app.SetGitBranch(gitBranch, "main")
-	app.SetGitCommit(gitCommit, "v1.0.1-6-gca3685e")
+	app.SetGitCommit(gitCommit, "v1.0.2-3-g852093a")
 	app.SetBuildUser(buildUser, "")
 	app.SetBuildDate(buildDate, "")
 }
